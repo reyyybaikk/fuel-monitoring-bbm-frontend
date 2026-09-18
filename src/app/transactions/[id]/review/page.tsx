@@ -22,7 +22,8 @@ import {
   Info,
   Fuel as FuelIcon,
   Gauge,
-  Image as ImageIcon
+  Image as ImageIcon,
+  FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

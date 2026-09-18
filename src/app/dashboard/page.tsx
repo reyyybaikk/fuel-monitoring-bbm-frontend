@@ -35,16 +35,27 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-// --- IMPORT LEAFLET SECARA DINAMIS ---
+// src/app/dashboard/page.tsx (pada baris ~38)
 import dynamicImport from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
-const MapContainer = dynamicImport(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
-const TileLayer = dynamicImport(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
-const Marker = dynamicImport(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
-const Popup = dynamicImport(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
-
+// Cast ke tipe `any` (atau ke tipe spesifik jika mau)
+const MapContainer = dynamicImport<any>(
+  () => import('react-leaflet').then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamicImport<any>(
+  () => import('react-leaflet').then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamicImport<any>(
+  () => import('react-leaflet').then((mod) => mod.Marker),
+  { ssr: false }
+);
+const Popup = dynamicImport<any>(
+  () => import('react-leaflet').then((mod) => mod.Popup),
+  { ssr: false }
+);
 // --- SUB-KOMPONEN: REAL INTERACTIVE MAP ---
 const KalimantanMap = ({ markers }: { markers: any[] }) => {
   const [L, setL] = useState<any>(null);
@@ -472,7 +483,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="p-5 space-y-4">
-             {(data?.recent_activities || []).filter(t => t.ml_is_anomaly).slice(0, 3).map((tx: any, i: number) => (
+             {(data?.recent_activities || []).filter((t: any) => t.ml_is_anomaly).slice(0, 3).map((tx: any, i: number) => (
                 <InteractiveElement
                   key={i}
                   onClick={() => router.push(`/transactions/${tx.id}/review`)}

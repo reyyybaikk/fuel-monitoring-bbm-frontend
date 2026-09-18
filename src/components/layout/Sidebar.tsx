@@ -92,11 +92,8 @@ export default function Sidebar() {
                       </span>
                     </div>
 
-                    {item.badge && !isActive && (
-                      <span className="ml-auto inline-flex items-center px-1.5 py-0.5 rounded-full font-mono text-[8px] font-black bg-anomaly-red text-white shadow-sm">
-                        {item.badge}
-                      </span>
-                    )}
+                    // Badge rendering removed (no badge field)
+
                   </Link>
                 );
               })}

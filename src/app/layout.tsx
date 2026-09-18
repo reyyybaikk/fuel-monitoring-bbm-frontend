@@ -79,7 +79,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           <Toaster position="top-right" reverseOrder={false} />
 
-          <Topbar />
+            <React.Suspense fallback={null}>
+              <Topbar />
+            </React.Suspense>
 
           <div className="flex min-h-screen relative pt-20">
             <Sidebar />

@@ -59,8 +59,10 @@ export default function UsersManagementPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleRoleChange = (value: string) => {
-    setFormData(prev => ({ ...prev, role: value }));
+  const handleRoleChange = (value: string | null) => {
+    if (value !== null) {
+      setFormData(prev => ({ ...prev, role: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -124,7 +126,7 @@ export default function UsersManagementPage() {
 
         {/* DIALOG MODAL FORM REGISTER DI WEB */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger>
             <Button size="sm" className="h-8 text-xs font-semibold bg-pln-darkBlue text-white hover:bg-pln-darkBlue/90 rounded-[4px] shadow-sm flex items-center gap-1.5 pt-0.5">
               <UserPlus className="h-3.5 w-3.5" /> Registrasi Akun Baru
             </Button>
