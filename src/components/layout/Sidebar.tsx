@@ -92,8 +92,6 @@ export default function Sidebar() {
                       </span>
                     </div>
 
-                    // Badge rendering removed (no badge field)
-
                   </Link>
                 );
               })}
