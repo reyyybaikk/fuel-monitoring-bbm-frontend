@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactionById, updateTransactionData, FuelTransaction } from '@/services/transactionService';
+import { getTransactionById, updateTransactionData, updateTransactionStatus, FuelTransaction } from '@/services/transactionService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,6 +77,20 @@ export default function TransactionReviewPage() {
     },
     onError: () => {
       toast.error('Gagal memperbarui data. Periksa koneksi backend.');
+    }
+  });
+
+  // 3. Mutasi Update Status
+  const statusMutation = useMutation({
+    mutationFn: (status: 'APPROVED' | 'REJECTED') => updateTransactionStatus(txId, status),
+    onSuccess: (_, status) => {
+      toast.success(`Transaksi berhasil ${status === 'APPROVED' ? 'diterima' : 'ditolak'}.`);
+      queryClient.invalidateQueries({ queryKey: ['transaction', txId] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      router.push('/transactions');
+    },
+    onError: () => {
+      toast.error('Gagal memperbarui status transaksi.');
     }
   });
 
@@ -395,6 +409,34 @@ export default function TransactionReviewPage() {
                 </div>
              </CardContent>
           </Card>
+
+          {/* Section 4: Keputusan Final */}
+          <Card className="border-border shadow-sm bg-white overflow-hidden rounded-[12px]">
+             <div className="bg-slate-100 px-4 py-3 border-b flex items-center gap-2 text-slate-800">
+                <CheckCircle2 className="h-4 w-4" />
+                <h2 className="text-xs font-bold uppercase tracking-widest">Keputusan Final</h2>
+             </div>
+             <CardContent className="p-5 flex gap-4">
+                <Button
+                  onClick={() => statusMutation.mutate('APPROVED')}
+                  disabled={statusMutation.isPending || mutation.isPending}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10"
+                >
+                  {statusMutation.isPending && statusMutation.variables === 'APPROVED' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  TERIMA TRANSAKSI
+                </Button>
+                <Button
+                  onClick={() => statusMutation.mutate('REJECTED')}
+                  disabled={statusMutation.isPending || mutation.isPending}
+                  variant="destructive"
+                  className="flex-1 font-bold text-xs h-10"
+                >
+                  {statusMutation.isPending && statusMutation.variables === 'REJECTED' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  TOLAK TRANSAKSI
+                </Button>
+             </CardContent>
+          </Card>
+
         </div>
 
       </div>
