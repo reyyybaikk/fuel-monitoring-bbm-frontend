@@ -61,11 +61,12 @@ export default function ReportsPage() {
 
   const { data: vehicles, isLoading: isLoadingVehicles } = useQuery({
     queryKey: ['vehicles-report', isPusat ? selectedRegion : userProfile?.region],
-    queryFn: () => {
+    queryFn: async () => {
       const regionFilter = isPusat
         ? (selectedRegion === 'ALL' ? undefined : selectedRegion)
         : userProfile?.region;
-      return getVehicles(undefined, regionFilter);
+      const res = await getVehicles(undefined, regionFilter, 1, 100);
+      return res.data;
     },
     enabled: mounted && isAuthenticated && (isPusat || !!userProfile?.region),
   });

@@ -17,10 +17,12 @@ export default function VehiclesPage() {
   const queryClient = useQueryClient();
   const { userProfile } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedRegion, setSelectedRegion] = useState<string>('ALL');
 
   // Modal State
   const [showRegModal, setShowRegModal] = useState(false);
+  const [qrModalData, setQrModalData] = useState<{show: boolean, plate: string}>({ show: false, plate: '' });
   const [formData, setFormData] = useState<Partial<Vehicle>>({
     license_plate: '',
     vehicle_type: '',
@@ -44,13 +46,13 @@ export default function VehiclesPage() {
   const isPusat = userProfile?.role === 'ADMIN_PUSAT';
 
   // 1. Ambil data kendaraan
-  const { data: serverVehicles, isLoading, isRefetching } = useQuery({
-    queryKey: ['vehicles', userProfile?.region, userProfile?.role, selectedRegion],
+  const { data: queryResult, isLoading, isRefetching } = useQuery({
+    queryKey: ['vehicles', userProfile?.region, userProfile?.role, selectedRegion, currentPage],
     queryFn: () => {
       const regionFilter = isPusat
         ? (selectedRegion === 'ALL' ? undefined : selectedRegion)
         : userProfile?.region;
-      return getVehicles(undefined, regionFilter);
+      return getVehicles(undefined, regionFilter, currentPage);
     },
     enabled: mounted && !!userProfile,
   });
@@ -80,9 +82,7 @@ export default function VehiclesPage() {
   });
 
   const handlePrintQR = (plate: string) => {
-    toast.success(`Menyiapkan cetak QR untuk armada ${plate}`);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://fuel-monitoring-backend.onrender.com';
-    window.open(`${apiUrl}/api/vehicles/qrcode/${encodeURIComponent(plate)}`, '_blank');
+    setQrModalData({ show: true, plate });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -102,7 +102,8 @@ export default function VehiclesPage() {
     );
   }
 
-  const vehicles = serverVehicles || [];
+  const vehicles = queryResult?.data || [];
+  const pagination = queryResult?.pagination;
 
   if (!mounted) return null;
 
@@ -215,6 +216,68 @@ export default function VehiclesPage() {
           </div>
         )}
       </div>
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-border mt-3 pt-4 px-2">
+          <span className="text-xs text-muted-foreground font-medium">Halaman {pagination.page} dari {pagination.totalPages} ({pagination.total} Total)</span>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 text-xs font-bold" 
+              disabled={pagination.page <= 1}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            >
+              Kembali
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 text-xs font-bold" 
+              disabled={pagination.page >= pagination.totalPages}
+              onClick={() => setCurrentPage(p => p + 1)}
+            >
+              Lanjut
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CETAK QR */}
+      {qrModalData.show && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <Card className="w-full max-w-sm bg-white shadow-2xl rounded-xl border-none overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
+                <div className="bg-pln-darkBlue px-4 py-3 flex items-center justify-between text-white">
+                    <h2 className="text-sm font-bold uppercase tracking-wider">Cetak QR Stiker</h2>
+                    <button onClick={() => setQrModalData({ show: false, plate: '' })} className="hover:bg-white/10 p-1.5 rounded-full transition-colors">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+                <div className="p-0 bg-slate-100 flex-1 min-h-[450px] relative">
+                    <iframe 
+                      id="qr-iframe"
+                      src={`${process.env.NEXT_PUBLIC_API_URL || 'https://fuel-monitoring-backend.onrender.com'}/api/vehicles/qrcode/${encodeURIComponent(qrModalData.plate)}`}
+                      className="w-full h-full absolute inset-0 border-none bg-white"
+                      title="Cetak QR"
+                    />
+                </div>
+                <div className="p-4 border-t border-border bg-white">
+                    <Button
+                        onClick={() => {
+                          const iframe = document.getElementById('qr-iframe') as HTMLIFrameElement;
+                          if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                          }
+                        }}
+                        className="w-full h-11 text-xs font-black bg-pln-darkBlue text-white hover:bg-pln-darkBlue/90 shadow-lg flex items-center justify-center gap-2"
+                    >
+                        UNDUH / CETAK PDF
+                    </Button>
+                </div>
+            </Card>
+        </div>
+      )}
 
       {/* MODAL REGISTRASI KENDARAAN */}
       {showRegModal && (

@@ -3,6 +3,7 @@ import api from './api';
 export interface FuelTransaction {
   id: string;
   vehicle_id: number;
+  driver_id: number;
   license_plate: string;
   vehicle_type: string;
   driver_name: string;

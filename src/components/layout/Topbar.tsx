@@ -16,12 +16,28 @@ export default function Topbar() {
   const { userProfile, login, isAuthenticated } = useAuthStore();
   const { toggleSidebar } = useUIStore();
 
-  // State untuk menangani sinkronisasi Hydration
   const [mounted, setMounted] = useState(false);
+  const [showNotif, setShowNotif] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch pending transactions for notification count
+  const { data: pendingData } = useQuery({
+    queryKey: ['pending-notifications', userProfile?.region],
+    queryFn: async () => {
+      const api = (await import('@/services/api')).default;
+      const res = await api.get('/api/fuel-transactions/history', {
+        params: { status: 'PENDING', limit: 1, ul_nd: userProfile?.role === 'ADMIN_PUSAT' ? undefined : userProfile?.region }
+      });
+      return res.data;
+    },
+    enabled: mounted && isAuthenticated,
+    refetchInterval: 30000 // Polling every 30s
+  });
+
+  const pendingCount = pendingData?.pagination?.total || 0;
 
   // Ambil data Profil User asli dari Database (Render)
   const { data: realUser, isLoading } = useQuery({
@@ -110,10 +126,39 @@ export default function Topbar() {
 
       {/* RIGHT SECTION: ACTIONS & USER */}
       <div className="flex items-center gap-6">
-        <button className="relative p-2 rounded-full hover:bg-slate-100 text-slate-400 transition-colors cursor-pointer">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-anomaly-red rounded-full border-2 border-white"></span>
-        </button>
+        <div className="relative">
+          <button 
+            onClick={() => setShowNotif(!showNotif)}
+            className="relative p-2 rounded-full hover:bg-slate-100 text-slate-400 transition-colors cursor-pointer"
+          >
+            <Bell className="h-5 w-5" />
+            {pendingCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-anomaly-red rounded-full border-2 border-white animate-pulse"></span>
+            )}
+          </button>
+
+          {showNotif && (
+            <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2">
+              <div className="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Notifikasi Sistem</span>
+                {pendingCount > 0 && <span className="bg-anomaly-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{pendingCount} Baru</span>}
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {pendingCount > 0 ? (
+                  <div className="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => router.push('/transactions')}>
+                    <p className="text-xs font-semibold text-slate-800">Antrean Klaim Pending</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Ada {pendingCount} transaksi BBM yang menunggu untuk diaudit dan disetujui.</p>
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-slate-400">
+                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-20" />
+                    <p className="text-[10px] uppercase font-bold">Tidak ada notifikasi baru</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
           <div className="flex flex-col text-right">

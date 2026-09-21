@@ -9,12 +9,14 @@ interface AuthenticatedImageProps {
   src: string;
   alt: string;
   className?: string;
+  enablePreview?: boolean;
 }
 
-export default function AuthenticatedImage({ src, alt, className }: AuthenticatedImageProps) {
+export default function AuthenticatedImage({ src, alt, className, enablePreview = false }: AuthenticatedImageProps) {
   const [imgUrl, setImgUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -65,10 +67,39 @@ export default function AuthenticatedImage({ src, alt, className }: Authenticate
   }
 
   return (
-    <img
-      src={imgUrl}
-      alt={alt}
-      className={cn("object-contain", className)}
-    />
+    <>
+      <img
+        src={imgUrl}
+        alt={alt}
+        className={cn("object-contain", enablePreview ? "cursor-pointer hover:opacity-90 transition-opacity" : "", className)}
+        onClick={() => {
+          if (enablePreview) setIsPreviewOpen(true);
+        }}
+      />
+      
+      {/* Fullscreen Preview Modal */}
+      {isPreviewOpen && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setIsPreviewOpen(false)}
+        >
+          <button 
+            className="absolute top-4 right-4 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsPreviewOpen(false);
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+          <img
+            src={imgUrl}
+            alt={`Preview of ${alt}`}
+            className="max-w-full max-h-[90vh] object-contain rounded-md shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </>
   );
 }

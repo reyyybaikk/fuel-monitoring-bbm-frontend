@@ -23,6 +23,7 @@ function TransactionsContent() {
   const searchQuery = searchParams.get('q') || '';
   const [mounted, setMounted] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string>('ALL');
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,17 +33,18 @@ function TransactionsContent() {
 
   const isPusat = userProfile?.role === 'ADMIN_PUSAT';
 
-  const { data: serverTransactions, isLoading, isRefetching } = useQuery<FuelTransaction[]>({
-    queryKey: ['transactions', searchQuery, selectedRegion],
+  const { data: queryResult, isLoading, isRefetching } = useQuery<{ data: FuelTransaction[], pagination: any }>({
+    queryKey: ['transactions', searchQuery, selectedRegion, currentPage],
     queryFn: async () => {
       const response = await api.get('/api/fuel-transactions/history', {
         params: {
           q: searchQuery,
           ul_nd: isPusat ? (selectedRegion === 'ALL' ? undefined : selectedRegion) : userProfile?.region,
-          limit: 50
+          limit: 10,
+          page: currentPage
         }
       });
-      return response.data.data;
+      return response.data;
     },
     enabled: mounted && !!userProfile,
   });
@@ -56,7 +58,8 @@ function TransactionsContent() {
     },
   });
 
-  const transactions = serverTransactions || [];
+  const transactions = queryResult?.data || [];
+  const pagination = queryResult?.pagination;
 
   useEffect(() => {
     if (transactions.length > 0 && !selectedTxId) {
@@ -175,6 +178,32 @@ function TransactionsContent() {
               <p className="text-xs font-medium text-muted-foreground">Tidak ada data transaksi.</p>
             </div>
           )}
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-border mt-3 pt-3 px-1">
+              <span className="text-[10px] text-muted-foreground font-medium">Hal {pagination.page} dari {pagination.totalPages}</span>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-[10px]" 
+                  disabled={pagination.page <= 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                >
+                  Prev
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-[10px]" 
+                  disabled={pagination.page >= pagination.totalPages}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* PANEL KANAN: Detail Inspeksi Berbasis Data Asli */}
@@ -230,6 +259,7 @@ function TransactionsContent() {
                           src={`/api/fuel-transactions/${activeTx.id}/photo/receipt`}
                           alt="Struk BBM"
                           className="max-h-full w-full"
+                          enablePreview={true}
                         />
                       ) : (
                         <div className="flex flex-col items-center gap-1 opacity-30">
@@ -249,6 +279,7 @@ function TransactionsContent() {
                           src={`/api/fuel-transactions/${activeTx.id}/photo/odometer`}
                           alt="Odometer"
                           className="max-h-full w-full"
+                          enablePreview={true}
                         />
                       ) : (
                         <div className="flex flex-col items-center gap-1 opacity-30">
@@ -268,6 +299,7 @@ function TransactionsContent() {
                           src={`/api/fuel-transactions/${activeTx.id}/photo/odometer_after`}
                           alt="Odometer Akhir"
                           className="max-h-full w-full"
+                          enablePreview={true}
                         />
                       ) : (
                         <div className="flex flex-col items-center gap-1 opacity-30">

@@ -14,7 +14,7 @@ export interface Vehicle {
   ul_pln?: string;
 }
 
-export const getVehicles = async (search?: string, ul_nd?: string): Promise<Vehicle[]> => {
+export const getVehicles = async (search?: string, ul_nd?: string, page: number = 1, limit: number = 12): Promise<{data: Vehicle[], pagination: any}> => {
   // Membersihkan prefix agar pencarian di database (Banjarmasin, Barabai, dsb) sukses
   const cleanRegion = ul_nd?.replace('Unit Layanan ', '').trim();
 
@@ -22,10 +22,11 @@ export const getVehicles = async (search?: string, ul_nd?: string): Promise<Vehi
     params: {
       search,
       ul_nd: cleanRegion,
-      limit: 100
+      limit,
+      page
     }
   });
-  return response.data.data;
+  return response.data;
 };
 
 export const createVehicle = async (vehicleData: Partial<Vehicle>) => {

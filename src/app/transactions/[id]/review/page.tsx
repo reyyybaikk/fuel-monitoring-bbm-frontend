@@ -88,16 +88,31 @@ export default function TransactionReviewPage() {
     }));
   };
 
-  const handleWhatsAppConfirm = () => {
-    if (!transaction?.whatsapp_number) {
+  const handleWhatsAppConfirm = async () => {
+    let phoneStr = transaction?.whatsapp_number;
+
+    if (!phoneStr) {
+      // Coba fetch langsung dari API driver karena backend Render mungkin belum update
+      try {
+        const { default: api } = await import('@/services/api');
+        const res = await api.get(`/api/drivers/${transaction?.driver_id}`);
+        if (res.data?.data?.whatsapp_number) {
+          phoneStr = res.data.data.whatsapp_number;
+        }
+      } catch (err) {
+        console.error('Gagal fetch driver info:', err);
+      }
+    }
+
+    if (!phoneStr) {
       toast.error('Nomor WhatsApp pengemudi tidak ditemukan di database.');
       return;
     }
 
-    const message = `Halo Bapak/Ibu ${transaction.driver_name},\n\nKami dari Admin FuelGuard AI ingin mengonfirmasi transaksi pengisian BBM Anda (ID: #${transaction.id}) pada armada ${transaction.license_plate}.\n\nSistem kami mendeteksi indikasi anomali: "${transaction.notes}".\n\nMohon penjelasan atau klarifikasi mengenai data tersebut. Terima kasih.`;
+    const message = `Halo Bapak/Ibu ${transaction?.driver_name},\n\nKami dari Admin FuelGuard AI ingin mengonfirmasi transaksi pengisian BBM Anda (ID: #${transaction?.id}) pada armada ${transaction?.license_plate}.\n\nSistem kami mendeteksi indikasi anomali: "${transaction?.notes || 'Perlu klarifikasi data'}".\n\nMohon penjelasan atau klarifikasi mengenai data tersebut. Terima kasih.`;
 
     // Bersihkan nomor (harus diawali 62)
-    let phone = transaction.whatsapp_number.replace(/[^0-9]/g, '');
+    let phone = phoneStr.replace(/[^0-9]/g, '');
     if (phone.startsWith('0')) phone = '62' + phone.slice(1);
 
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
@@ -172,6 +187,7 @@ export default function TransactionReviewPage() {
                       src={`/api/fuel-transactions/${transaction.id}/photo/receipt`}
                       alt="Struk BBM"
                       className="max-h-[600px] w-full"
+                      enablePreview={true}
                     />
                   ) : (
                     <div className="text-center opacity-40">
@@ -195,6 +211,7 @@ export default function TransactionReviewPage() {
                         src={`/api/fuel-transactions/${transaction.id}/photo/odometer`}
                         alt="Odometer Awal"
                         className="max-h-[500px] w-full"
+                        enablePreview={true}
                       />
                     ) : (
                       <div className="text-center opacity-40">
@@ -216,6 +233,7 @@ export default function TransactionReviewPage() {
                         src={`/api/fuel-transactions/${transaction.id}/photo/odometer_after`}
                         alt="Odometer Akhir"
                         className="max-h-[500px] w-full"
+                        enablePreview={true}
                       />
                     ) : (
                       <div className="text-center opacity-40">
