@@ -261,20 +261,7 @@ export default function VehiclesPage() {
                       title="Cetak QR"
                     />
                 </div>
-                <div className="p-4 border-t border-border bg-white">
-                    <Button
-                        onClick={() => {
-                          const iframe = document.getElementById('qr-iframe') as HTMLIFrameElement;
-                          if (iframe && iframe.contentWindow) {
-                            iframe.contentWindow.focus();
-                            iframe.contentWindow.print();
-                          }
-                        }}
-                        className="w-full h-11 text-xs font-black bg-pln-darkBlue text-white hover:bg-pln-darkBlue/90 shadow-lg flex items-center justify-center gap-2"
-                    >
-                        UNDUH / CETAK PDF
-                    </Button>
-                </div>
+               
             </Card>
         </div>
       )}

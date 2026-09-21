@@ -89,10 +89,16 @@ export default function TransactionReviewPage() {
   };
 
   const handleWhatsAppConfirm = async () => {
-    let phoneStr = transaction?.whatsapp_number;
+    // Preserve user gesture: open a blank window immediately
+    const win = window.open('', '_blank');
+    if (!win) {
+      toast.error('Popup blocker menghalangi pembukaan WhatsApp. Aktifkan pop‑up untuk situs ini.');
+      return;
+    }
 
+    let phoneStr = transaction?.whatsapp_number;
     if (!phoneStr) {
-      // Coba fetch langsung dari API driver karena backend Render mungkin belum update
+      // Try fetching driver info directly because remote backend may be stale
       try {
         const { default: api } = await import('@/services/api');
         const res = await api.get(`/api/drivers/${transaction?.driver_id}`);
@@ -106,16 +112,17 @@ export default function TransactionReviewPage() {
 
     if (!phoneStr) {
       toast.error('Nomor WhatsApp pengemudi tidak ditemukan di database.');
+      win.close();
       return;
     }
 
     const message = `Halo Bapak/Ibu ${transaction?.driver_name},\n\nKami dari Admin FuelGuard AI ingin mengonfirmasi transaksi pengisian BBM Anda (ID: #${transaction?.id}) pada armada ${transaction?.license_plate}.\n\nSistem kami mendeteksi indikasi anomali: "${transaction?.notes || 'Perlu klarifikasi data'}".\n\nMohon penjelasan atau klarifikasi mengenai data tersebut. Terima kasih.`;
 
-    // Bersihkan nomor (harus diawali 62)
+    // Clean the phone number (must start with 62)
     let phone = phoneStr.replace(/[^0-9]/g, '');
     if (phone.startsWith('0')) phone = '62' + phone.slice(1);
 
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+    win.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
   if (!mounted || isLoading) {
