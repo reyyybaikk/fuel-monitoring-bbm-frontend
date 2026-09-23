@@ -1,0 +1,3 @@
+module.exports=[40777,a=>{"use strict";var b=a.i(87924),c=a.i(72131),d=a.i(50944);a.s(["default",0,function(){let a=(0,d.useRouter)();return(0,c.useEffect)(()=>{a.replace("/login")},[a]),(0,b.jsx)("div",{className:"min-h-screen flex items-center justify-center bg-[#e6f4f8]",children:(0,b.jsxs)("div",{className:"flex flex-col items-center gap-3",children:[(0,b.jsx)("div",{className:"w-8 h-8 rounded-full border-2 border-pln-cyan border-t-transparent animate-spin"}),(0,b.jsx)("p",{className:"font-sans text-xs font-medium text-pln-darkBlue",children:"Mengalihkan Sesi Portal..."})]})})}])}];
+
+//# sourceMappingURL=src_app_page_tsx_1chiuah._.js.map
