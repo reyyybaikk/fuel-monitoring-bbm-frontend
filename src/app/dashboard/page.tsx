@@ -177,27 +177,46 @@ export default function DashboardPage() {
   const [selectedRegion, setSelectedRegion] = useState<string>('ALL');
 
   useEffect(() => {
-    // If userProfile is not yet loaded (e.g., after a full page refresh),
-    // attempt to fetch it using the auth_token cookie.
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (userProfile?.region) {
+      setSelectedRegion(userProfile.region);
+    }
+  }, [userProfile]);
+
+  useEffect(() => {
+    // If userProfile is not in store, attempt to restore it
     if (!userProfile) {
-      // Read cookie client‑side
-      const match = document.cookie.match(/auth_token=([^;]+)/);
-      const token = match ? match[1] : null;
+      const token =
+        (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null) ||
+        (typeof document !== 'undefined' ? document.cookie.match(/auth_token=([^;]+)/)?.[1] : null);
+
       if (token) {
-        // Call backend to get current user info
         api
           .get('/api/auth/me')
           .then((res) => {
-            // Populate store with the fetched profile
-            setUserProfile(res.data.user);
+            const userData = res.data?.data || res.data?.user || res.data;
+            if (userData) {
+              setUserProfile({
+                id: userData.id,
+                name: userData.full_name || userData.name || userData.username,
+                username: userData.username,
+                email: userData.email,
+                role: userData.role,
+                region: userData.region,
+              });
+            }
           })
           .catch(() => {
-            // If token is invalid, clear it (optional)
-            document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+            router.push('/login');
           });
+      } else if (mounted) {
+        router.push('/login');
       }
     }
-  }, []);
+  }, [userProfile, mounted, router, setUserProfile]);
 
   const isPusat = userProfile?.role === 'ADMIN_PUSAT';
 

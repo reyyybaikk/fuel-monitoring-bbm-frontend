@@ -380,7 +380,7 @@ export default function ReportsPage() {
                             <span className="text-[7px] font-black text-slate-500 uppercase text-center bg-slate-50 border border-slate-200 py-1">{photo.label}</span>
                             <div className="w-full h-32 bg-slate-50 border border-slate-300 rounded-[2px] flex items-center justify-center overflow-hidden">
                                {tx[photo.key] ? (
-                                 <AuthenticatedImage src={`/api/fuel-transactions/${tx.id}/photo/${photo.key.replace('_path', '')}`} alt={photo.label} className="max-h-full w-full" />
+                                 <AuthenticatedImage src={tx[photo.key]} enablePreview={true} alt={photo.label} className="max-h-full w-full" />
                                ) : <ImageIcon className="h-5 w-5 text-slate-200" />}
                             </div>
                          </div>

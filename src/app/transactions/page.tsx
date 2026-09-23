@@ -256,7 +256,7 @@ function TransactionsContent() {
                     <div className="w-full h-32 bg-white rounded border border-border/60 flex items-center justify-center overflow-hidden">
                       {activeTx.receipt_photo_path ? (
                         <AuthenticatedImage
-                          src={`/api/fuel-transactions/${activeTx.id}/photo/receipt`}
+                          src={activeTx.receipt_photo_path}
                           alt="Struk BBM"
                           className="max-h-full w-full"
                           enablePreview={true}
@@ -276,7 +276,7 @@ function TransactionsContent() {
                     <div className="w-full h-32 bg-white rounded border border-border/60 flex items-center justify-center overflow-hidden">
                       {activeTx.odometer_photo_path ? (
                         <AuthenticatedImage
-                          src={`/api/fuel-transactions/${activeTx.id}/photo/odometer`}
+                          src={activeTx.odometer_photo_path}
                           alt="Odometer"
                           className="max-h-full w-full"
                           enablePreview={true}
@@ -296,7 +296,7 @@ function TransactionsContent() {
                     <div className="w-full h-32 bg-white rounded border border-border/60 flex items-center justify-center overflow-hidden">
                       {activeTx.odometer_after_photo_path ? (
                         <AuthenticatedImage
-                          src={`/api/fuel-transactions/${activeTx.id}/photo/odometer_after`}
+                          src={activeTx.odometer_after_photo_path}
                           alt="Odometer Akhir"
                           className="max-h-full w-full"
                           enablePreview={true}

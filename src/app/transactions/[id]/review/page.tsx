@@ -205,7 +205,7 @@ export default function TransactionReviewPage() {
                 <div className="w-full bg-slate-100 rounded-[8px] border border-border/60 overflow-hidden flex items-center justify-center min-h-[350px] shadow-inner">
                   {transaction.receipt_photo_path ? (
                     <AuthenticatedImage
-                      src={`/api/fuel-transactions/${transaction.id}/photo/receipt`}
+                      src={transaction.receipt_photo_path}
                       alt="Struk BBM"
                       className="max-h-[600px] w-full"
                       enablePreview={true}
@@ -229,7 +229,7 @@ export default function TransactionReviewPage() {
                   <div className="w-full bg-slate-100 rounded-[8px] border border-border/60 overflow-hidden flex items-center justify-center min-h-[300px] shadow-inner">
                     {transaction.odometer_photo_path ? (
                       <AuthenticatedImage
-                        src={`/api/fuel-transactions/${transaction.id}/photo/odometer`}
+                        src={transaction.odometer_photo_path}
                         alt="Odometer Awal"
                         className="max-h-[500px] w-full"
                         enablePreview={true}
@@ -251,7 +251,7 @@ export default function TransactionReviewPage() {
                   <div className="w-full bg-slate-100 rounded-[8px] border border-border/60 overflow-hidden flex items-center justify-center min-h-[300px] shadow-inner">
                     {transaction.odometer_after_photo_path ? (
                       <AuthenticatedImage
-                        src={`/api/fuel-transactions/${transaction.id}/photo/odometer_after`}
+                        src={transaction.odometer_after_photo_path}
                         alt="Odometer Akhir"
                         className="max-h-[500px] w-full"
                         enablePreview={true}
