@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
   const pathname = request.nextUrl.pathname;
 
-  // Allow the refresh‑token endpoint to be accessed without a valid auth token
+  // Allow the refresh-token endpoint to be accessed without a valid auth token
   if (pathname.startsWith('/api/auth/refresh')) {
     return NextResponse.next();
   }
@@ -17,7 +17,14 @@ export function middleware(request: NextRequest) {
   }
 
   // No token – redirect to login unless we are already on the login page
-  if (!pathname.startsWith('/login')) {
+  // Exclude static assets, API routes and favicon from redirect
+  if (!pathname.startsWith('/login') && !pathname.startsWith('/api')) {
+    if (
+      pathname.startsWith('/_next/') ||
+      pathname.startsWith('/favicon.ico')
+    ) {
+      return NextResponse.next();
+    }
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
@@ -27,8 +34,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Apply to every route except static assets (/_next, /api, /favicon.ico, etc.)
-  matcher: '/:path*',
+  // Apply to every route except static assets, API routes, and favicon
+  matcher: '/((?!_next/static|_next/image|api|favicon.ico).*)',
 };
-// DEBUG: middleware di‑load pada Wed Sep 23 21:02:42 MPST 2026
-// DEBUG: middleware di‑load pada Wed Sep 23 21:03:10 MPST 2026
