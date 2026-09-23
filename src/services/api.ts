@@ -1,10 +1,11 @@
 import axios from 'axios';
-
 // Mengambil URL dari file .env.local secara otomatis
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  // Penting! Mengirim kredensial (cookies, Authorization header) ke domain lain
+  // sehingga backend dapat men‑set cookie HTTP‑Only yang dibutuhkan middleware.
+  withCredentials: true,
 });
-
 // Interceptor untuk otomatis menempelkan Token JWT di setiap request ke Render
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
@@ -15,7 +16,6 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
 // Interceptor untuk mendeteksi jika token kedaluwarsa (401), otomatis disuruh login ulang
 api.interceptors.response.use(
   (response) => response,
@@ -29,5 +29,4 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 export default api;
