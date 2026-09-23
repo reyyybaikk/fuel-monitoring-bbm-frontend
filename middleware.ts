@@ -30,3 +30,5 @@ export const config = {
   // Apply to every route except static assets (/_next, /api, /favicon.ico, etc.)
   matcher: '/:path*',
 };
+// DEBUG: middleware di‑load pada Wed Sep 23 21:02:42 MPST 2026
+// DEBUG: middleware di‑load pada Wed Sep 23 21:03:10 MPST 2026
