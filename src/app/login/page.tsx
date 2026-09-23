@@ -63,6 +63,10 @@ export default function LoginPage() {
       if (!token) throw new Error('Token tidak ditemukan dalam respon server.');
 
       loginStore(user, token);
+      // Set a regular cookie (non‑HttpOnly) on the frontend domain so Next.js middleware can read it
+      if (typeof window !== 'undefined') {
+        document.cookie = `auth_token=${token}; path=/; SameSite=Lax; Secure`;
+      }
       toast.success(`Otentikasi Berhasil! Mengalihkan ke sistem...`);
 
       setTimeout(() => {
