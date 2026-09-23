@@ -119,7 +119,7 @@ export default function LoginPage() {
       <header className="relative z-10 w-full px-8 py-6 flex items-center justify-between">
         <div className="flex items-center gap-6">
           {/* Logo PLN */}
-          <img src="/logo-pln.png" alt="PLN Nusa Daya" className="h-10 w-auto object-contain" />
+          <img src="/logo-pln.png" alt="PLN Nusa Daya" className="h-10 w-auto object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
 
           <div className="h-8 w-px bg-slate-200 mx-2" />
 

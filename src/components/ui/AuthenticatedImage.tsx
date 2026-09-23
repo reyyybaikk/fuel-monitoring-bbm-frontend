@@ -26,25 +26,11 @@ export default function AuthenticatedImage({ src, alt, className, enablePreview 
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    let objectUrl: string | null = null;
-    const fetchImage = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const response = await api.get(src, { responseType: 'blob' });
-        objectUrl = URL.createObjectURL(response.data);
-        setImgUrl(objectUrl);
-      } catch (err) {
-        console.error('Gagal memuat gambar terproteksi:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (src) fetchImage();
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
+    setLoading(true);
+    setError(false);
+    // Directly use the src URL (can be a Supabase public URL or backend proxy)
+    setImgUrl(src);
+    setLoading(false);
   }, [src]);
 
   // Wheel zoom handler (clamped 1‑3×)

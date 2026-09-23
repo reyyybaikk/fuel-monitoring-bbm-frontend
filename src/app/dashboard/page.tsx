@@ -171,15 +171,33 @@ const DonutChart = ({ data, totalLiters }: { data: any[], totalLiters: number })
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { userProfile } = useAuthStore();
+  const { userProfile, setUserProfile } = useAuthStore();
   const [range, setRange] = useState('7d');
   const [mounted, setMounted] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string>('ALL');
 
   useEffect(() => {
-    setMounted(true);
-    if (userProfile?.region) setSelectedRegion(userProfile.region);
-  }, [userProfile]);
+    // If userProfile is not yet loaded (e.g., after a full page refresh),
+    // attempt to fetch it using the auth_token cookie.
+    if (!userProfile) {
+      // Read cookie client‑side
+      const match = document.cookie.match(/auth_token=([^;]+)/);
+      const token = match ? match[1] : null;
+      if (token) {
+        // Call backend to get current user info
+        api
+          .get('/api/auth/me')
+          .then((res) => {
+            // Populate store with the fetched profile
+            setUserProfile(res.data.user);
+          })
+          .catch(() => {
+            // If token is invalid, clear it (optional)
+            document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+          });
+      }
+    }
+  }, []);
 
   const isPusat = userProfile?.role === 'ADMIN_PUSAT';
 

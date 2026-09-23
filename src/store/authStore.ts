@@ -9,7 +9,7 @@ interface UserProfile {
   region?: string;
 }
 
-interface AuthState {
+  setUserProfile: (user: UserProfile) => void;
   userProfile: UserProfile | null;
   accessToken: string | null;
   isAuthenticated: boolean;
@@ -21,7 +21,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   userProfile: null,
   accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
   isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false,
-  login: (user, token) => {
+  setUserProfile: (user) => set({ userProfile: user }),
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', token);
     }
