@@ -28,6 +28,6 @@
    return NextResponse.next();
  }
  export const config = {
-   // Apply to every route except static assets, API routes, and favicon
-   matcher: '/((?!_next/static|_next/image|api|favicon.ico).*)',
+   // Apply to every route except static assets, API routes, favicon, and image files
+   matcher: '/((?!_next/static|_next/image|api|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|gif|webp)$).*)',
  };
