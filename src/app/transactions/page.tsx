@@ -112,9 +112,7 @@ function TransactionsContent() {
             </div>
           )}
 
-          <button className="h-9 text-xs px-4 font-black bg-pln-darkBlue text-white rounded-[4px] shadow-sm active:scale-95 transition-all uppercase tracking-wider">
-            Ekspor Data
-          </button>
+          
         </div>
       </div>
 
