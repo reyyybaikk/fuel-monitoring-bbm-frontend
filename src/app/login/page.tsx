@@ -81,7 +81,7 @@ export default function LoginPage() {
     }
   };
 
-  if (!mounted) return null;
+  
 
   return (
     <main className="relative min-h-screen w-full bg-[#f0f4f8] overflow-hidden font-sans flex flex-col">
