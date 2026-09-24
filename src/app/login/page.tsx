@@ -119,30 +119,12 @@ export default function LoginPage() {
       <header className="relative z-10 w-full px-8 py-6 flex items-center justify-between">
         <div className="flex items-center gap-6">
           {/* Logo PLN */}
-          <img src="/logo-pln.png" alt="PLN Nusa Daya" className="h-10 w-auto object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <img src="/logo-pln.png" alt="PLN Nusa Daya" className="h-10 w-auto object-contain" />
 
           <div className="h-8 w-px bg-slate-200 mx-2" />
 
           {/* Logo Danantara */}
-          <img
-            src="/logo-danantara.png"
-            alt="Danantara Indonesia"
-            className="h-6 w-auto object-contain"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
-            }}
-          />
-          {/* Fallback Danantara jika gambar belum ada */}
-          <div className="hidden flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-[#0b1c30] flex items-center justify-center text-white">
-               <Zap className="h-4 w-4 text-[#FFE600]" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-[11px] text-slate-800 uppercase tracking-tighter leading-tight">Danantara</span>
-              <span className="text-[9px] font-medium text-slate-500 uppercase leading-none">Indonesia</span>
-            </div>
-          </div>
+          <img src="/logo-danantara.png" alt="Danantara Indonesia" className="h-6 w-auto object-contain" />
         </div>
 
         <div className="flex items-center gap-6">
