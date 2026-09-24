@@ -24,7 +24,7 @@ import {
   ArrowRight,
   ShieldAlert
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { HelpPopup } from '@/components/ui/HelpPopup';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -130,7 +131,7 @@ export default function LoginPage() {
         <div className="flex items-center gap-6">
           
 
-          <button className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors">
+          <button className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors" onClick={() => setHelpOpen(true)}>
             <HelpCircle className="h-4 w-4" />
             <span className="text-[11px] font-bold uppercase tracking-tight">Bantuan IT & Helpdesk</span>
           </button>
@@ -297,7 +298,7 @@ export default function LoginPage() {
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
           Powered by rey baik © {new Date().getFullYear()}
         </p>
-      </footer>
+      </footer>{helpOpen && <HelpPopup isOpen={helpOpen} onClose={() => setHelpOpen(false)} />}
     </main>
   );
 }
