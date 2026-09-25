@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTransactionById, updateTransactionData, updateTransactionStatus, FuelTransaction } from '@/services/transactionService';
+import { getTransactionById, updateTransactionData, updateTransactionStatus, submitTransactionFeedback, FuelTransaction } from '@/services/transactionService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -91,6 +91,20 @@ export default function TransactionReviewPage() {
     },
     onError: () => {
       toast.error('Gagal memperbarui status transaksi.');
+    }
+  });
+
+  // 4. Mutasi Feedback ML
+  const feedbackMutation = useMutation({
+    mutationFn: (isAnomaly: boolean) => submitTransactionFeedback(txId, isAnomaly, formData.notes || ''),
+    onSuccess: (_, isAnomaly) => {
+      toast.success(`Feedback berhasil dikirim. ML-Engine akan belajar dari ini.`);
+      queryClient.invalidateQueries({ queryKey: ['transaction', txId] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      router.push('/transactions');
+    },
+    onError: () => {
+      toast.error('Gagal mengirim feedback ML.');
     }
   });
 
@@ -287,6 +301,40 @@ export default function TransactionReviewPage() {
               </p>
             </CardContent>
           </Card>
+
+          {/* Section 1.5: ML Feedback Loop */}
+          {transaction.ml_is_anomaly && (
+            <Card className="border-border shadow-sm bg-white overflow-hidden rounded-[12px]">
+               <div className="bg-indigo-600 px-4 py-3 border-b flex items-center gap-2 text-white">
+                  <MessageCircle className="h-4 w-4" />
+                  <h2 className="text-xs font-bold uppercase tracking-widest">Feedback ML-Engine</h2>
+               </div>
+               <CardContent className="p-5 space-y-4">
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    Bantu AI kami belajar. Apakah deteksi anomali pada transaksi ini benar atau salah (False Positive)? Pastikan Anda memberi catatan di form bawah jika memilih salah.
+                  </p>
+                  <div className="flex gap-4">
+                    <Button
+                      onClick={() => feedbackMutation.mutate(true)}
+                      disabled={feedbackMutation.isPending}
+                      className="flex-1 bg-anomaly-red hover:bg-red-700 text-white font-bold text-xs h-10"
+                    >
+                      {feedbackMutation.isPending && feedbackMutation.variables === true ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      👍 BENAR (ANOMALI)
+                    </Button>
+                    <Button
+                      onClick={() => feedbackMutation.mutate(false)}
+                      disabled={feedbackMutation.isPending}
+                      variant="outline"
+                      className="flex-1 font-bold text-xs h-10 text-emerald-600 border-emerald-600 hover:bg-emerald-50"
+                    >
+                      {feedbackMutation.isPending && feedbackMutation.variables === false ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      👎 SALAH (NORMAL)
+                    </Button>
+                  </div>
+               </CardContent>
+            </Card>
+          )}
 
           {/* Section 2: WhatsApp Confirmation */}
           <Card className="border-border shadow-sm bg-white overflow-hidden rounded-[12px]">

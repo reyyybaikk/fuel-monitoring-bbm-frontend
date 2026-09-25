@@ -51,3 +51,8 @@ export const updateTransactionData = async (id: string, data: Partial<FuelTransa
   const response = await api.put(`/api/fuel-transactions/${id}`, data);
   return response.data.data;
 };
+
+export const submitTransactionFeedback = async (id: string, isAnomaly: boolean, notes: string = '') => {
+  const response = await api.post(`/api/fuel-transactions/${id}/feedback`, { isAnomaly, notes });
+  return response.data.data;
+};
