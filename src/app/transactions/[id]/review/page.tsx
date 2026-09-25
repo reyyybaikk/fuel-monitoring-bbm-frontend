@@ -83,7 +83,16 @@ export default function TransactionReviewPage() {
   // 3. Mutasi Update Status
   const statusMutation = useMutation({
     mutationFn: (status: 'APPROVED' | 'REJECTED') => updateTransactionStatus(txId, status),
-    onSuccess: (_, status) => {
+    onSuccess: async (_, status) => {
+      // Kirim feedback ke ML‑Engine sesuai keputusan admin
+      const isAnomaly = status === 'REJECTED';
+      try {
+        await submitTransactionFeedback(txId, isAnomaly, formData.notes || '');
+        toast.success('Feedback ke ML‑Engine berhasil dikirim.');
+      } catch (err) {
+        console.error(err);
+        toast.error('Gagal mengirim feedback ke ML‑Engine.');
+      }
       toast.success(`Transaksi berhasil ${status === 'APPROVED' ? 'diterima' : 'ditolak'}.`);
       queryClient.invalidateQueries({ queryKey: ['transaction', txId] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
