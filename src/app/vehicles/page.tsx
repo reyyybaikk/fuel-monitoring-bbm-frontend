@@ -256,7 +256,7 @@ export default function VehiclesPage() {
                 <div className="p-0 bg-slate-100 flex-1 min-h-[450px] relative">
                     <iframe 
                       id="qr-iframe"
-                      src={`${process.env.NEXT_PUBLIC_API_URL || 'https://fuel-monitoring-backend.onrender.com'}/api/vehicles/qrcode/${encodeURIComponent(qrModalData.plate)}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL || 'https://fuel-monitoring-system.onrender.com'}/api/vehicles/qrcode/${encodeURIComponent(qrModalData.plate)}`}
                       className="w-full h-full absolute inset-0 border-none bg-white"
                       title="Cetak QR"
                     />
