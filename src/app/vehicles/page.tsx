@@ -22,7 +22,7 @@ export default function VehiclesPage() {
 
   // Modal State
   const [showRegModal, setShowRegModal] = useState(false);
-  const [qrModalData, setQrModalData] = useState<{show: boolean, plate: string}>({ show: false, plate: '' });
+  const [qrModalData, setQrModalData] = useState<{show: boolean, plate: string, M_ID?: string}>({ show: false, plate: '' });
   const [formData, setFormData] = useState<Partial<Vehicle>>({
     license_plate: '',
     vehicle_type: '',
@@ -81,8 +81,12 @@ export default function VehiclesPage() {
     }
   });
 
-  const handlePrintQR = (plate: string) => {
-    setQrModalData({ show: true, plate });
+  const handlePrintQR = (vehicle: any) => {
+    if (!vehicle?.license_plate) {
+      toast.error('Data kendaraan tidak lengkap');
+      return;
+    }
+    setQrModalData({ show: true, plate: vehicle.license_plate, M_ID: vehicle.M_ID });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -197,7 +201,7 @@ export default function VehiclesPage() {
 
               <div className="mt-4 relative z-10">
                 <button
-                  onClick={() => handlePrintQR(vh.license_plate)}
+                  onClick={() => handlePrintQR(vh)}
                   className="w-full h-9 text-[10px] font-black rounded-[4px] border border-pln-cyan/20 bg-pln-iceBlue/40 text-pln-darkBlue hover:bg-pln-cyan hover:text-white transition-all flex items-center justify-center gap-2 uppercase tracking-wider shadow-sm active:scale-[0.98]"
                 >
                   <QrCode className="h-4 w-4" /> Cetak QR Driver
