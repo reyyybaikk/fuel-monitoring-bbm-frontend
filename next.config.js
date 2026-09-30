@@ -12,13 +12,14 @@ module.exports = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            // Allow scripts, styles, fonts, images, and explicitly permit the backend to be framed
+            // Allow scripts, styles, fonts, images, connections to backend, and explicitly permit framing
             value:
               "default-src 'self'; " +
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               "font-src 'self' https://fonts.gstatic.com data:; " +
               "img-src 'self' data: https:; " +
+              "connect-src 'self' https://fuel-monitoring-system.onrender.com; " +
               "frame-ancestors 'self' https://fuel-monitoring-system.onrender.com;",
           },
           {
