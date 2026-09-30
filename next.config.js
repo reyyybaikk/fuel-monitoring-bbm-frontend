@@ -22,7 +22,7 @@ module.exports = {
               "connect-src 'self' https://fuel-monitoring-system.onrender.com; " +
               "frame-src 'self' https://fuel-monitoring-system.onrender.com; " +
               "frame-ancestors 'self' https://fuel-monitoring-system.onrender.com; " +
-              "upgrade-insecure-requests;",,
+              "upgrade-insecure-requests;",
           },
           {
             key: 'X-Frame-Options',
