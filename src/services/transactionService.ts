@@ -20,6 +20,7 @@ export interface FuelTransaction {
   odometer_after_photo_path: string;
   whatsapp_number?: string;
   created_at: string;
+  rule_labels?: string[];
 }
 
 export const getTransactions = async (search?: string, filters?: any): Promise<FuelTransaction[]> => {

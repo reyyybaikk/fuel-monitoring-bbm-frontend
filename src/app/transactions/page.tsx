@@ -150,6 +150,13 @@ function TransactionsContent() {
                         <Badge className="bg-anomaly-red text-white text-[8px] font-bold rounded-[3px] px-1.5 h-4 border-none shadow-sm">RISIKO: {tx.ml_anomaly_score}</Badge>
                       ) : (
                         <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 text-[8px] font-bold rounded-[3px] px-1.5 h-4">AMAN</Badge>
+                        {tx.rule_labels?.length && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {tx.rule_labels.map(label => (
+                              <Badge key={label} variant="secondary" className="text-[8px] font-medium">{label}</Badge>
+                            ))}
+                          </div>
+                        )}
                       )}
                     </div>
 
