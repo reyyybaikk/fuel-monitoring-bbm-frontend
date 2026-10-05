@@ -207,7 +207,19 @@ export default function TransactionReviewPage() {
         </div>
       </div>
 
-      {/* Main Grid: Images & Edit Form */}
+        {/* Label Aturan */}
+        {transaction.rule_labels?.length && (
+          <section className="mt-4">
+            <h3 className="text-sm font-medium mb-1">Label Aturan</h3>
+            <div className="flex flex-wrap gap-2">
+              {transaction.rule_labels.map(label => (
+                <Badge key={label} variant="secondary" className="text-[8px] font-medium">{label}</Badge>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Main Grid: Images & Edit Form */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* LEFT COLUMN: VISUAL EVIDENCE (Sticky) */}
