@@ -22,14 +22,16 @@ export default function VehiclesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-      setCurrentPage(1);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  const handleSearch = () => {
+    setDebouncedSearch(searchTerm);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setDebouncedSearch('');
+    setCurrentPage(1);
+  };
 
   // Modal State
   const [showRegModal, setShowRegModal] = useState(false);
@@ -155,19 +157,27 @@ export default function VehiclesPage() {
             </div>
           )}
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+          <div className="relative flex items-center">
+            <button 
+              onClick={handleSearch}
+              className="absolute left-2.5 p-1 text-slate-400 hover:text-pln-cyan transition-colors z-10"
+              title="Cari Data"
+            >
+              <Search className="h-3.5 w-3.5" />
+            </button>
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
               placeholder="Cari pelat, tipe..."
               className="h-9 w-full sm:w-[200px] pl-9 pr-8 text-xs font-medium bg-white border border-border rounded-[4px] outline-none focus:border-pln-cyan/50 focus:ring-1 focus:ring-pln-cyan/20 placeholder:text-slate-400 transition-all"
             />
             {searchTerm && (
               <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                onClick={handleClearSearch}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 transition-colors"
+                title="Hapus Pencarian"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
