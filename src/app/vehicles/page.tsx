@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getVehicles, createVehicle, Vehicle } from '@/services/vehicleService';
 import { useAuthStore } from '@/store/authStore';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import InteractiveElement from '@/components/ui/InteractiveElement';
-import { Truck, QrCode, Plus, Loader2, Building2, MapPin, X, Save, Info } from 'lucide-react';
+import { Truck, QrCode, Plus, Loader2, Building2, MapPin, X, Save, Info, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
@@ -19,6 +19,17 @@ export default function VehiclesPage() {
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedRegion, setSelectedRegion] = useState<string>('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Modal State
   const [showRegModal, setShowRegModal] = useState(false);
@@ -47,12 +58,12 @@ export default function VehiclesPage() {
 
   // 1. Ambil data kendaraan
   const { data: queryResult, isLoading, isRefetching } = useQuery({
-    queryKey: ['vehicles', userProfile?.region, userProfile?.role, selectedRegion, currentPage],
+    queryKey: ['vehicles', userProfile?.region, userProfile?.role, selectedRegion, currentPage, debouncedSearch],
     queryFn: () => {
       const regionFilter = isPusat
         ? (selectedRegion === 'ALL' ? undefined : selectedRegion)
         : userProfile?.region;
-      return getVehicles(undefined, regionFilter, currentPage);
+      return getVehicles(debouncedSearch || undefined, regionFilter, currentPage);
     },
     enabled: mounted && !!userProfile,
   });
@@ -143,6 +154,25 @@ export default function VehiclesPage() {
               </select>
             </div>
           )}
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Cari pelat, tipe..."
+              className="h-9 w-full sm:w-[200px] pl-9 pr-8 text-xs font-medium bg-white border border-border rounded-[4px] outline-none focus:border-pln-cyan/50 focus:ring-1 focus:ring-pln-cyan/20 placeholder:text-slate-400 transition-all"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
 
           <button
             onClick={() => setShowRegModal(true)}

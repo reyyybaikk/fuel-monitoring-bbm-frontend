@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import InteractiveElement from '@/components/ui/InteractiveElement';
-import { FileText, Image as ImageIcon, AlertTriangle, Loader2, Search, User, Calendar, ExternalLink, MapPin } from 'lucide-react';
+import { FileText, Image as ImageIcon, AlertTriangle, Loader2, Search, User, Calendar, ExternalLink, MapPin, X } from 'lucide-react';
 import AuthenticatedImage from '@/components/ui/AuthenticatedImage';
 import api from '@/services/api';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,17 @@ function TransactionsContent() {
   const [selectedRegion, setSelectedRegion] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     setMounted(true);
@@ -34,11 +45,12 @@ function TransactionsContent() {
   const isPusat = userProfile?.role === 'ADMIN_PUSAT';
 
   const { data: queryResult, isLoading, isRefetching } = useQuery<{ data: FuelTransaction[], pagination: any }>({
-    queryKey: ['transactions', searchQuery, selectedRegion, currentPage],
+    queryKey: ['transactions', searchQuery, debouncedSearch, selectedRegion, currentPage],
     queryFn: async () => {
+      const combinedSearch = debouncedSearch || searchQuery;
       const response = await api.get('/api/fuel-transactions/history', {
         params: {
-          q: searchQuery,
+          q: combinedSearch || undefined,
           ul_nd: isPusat ? (selectedRegion === 'ALL' ? undefined : selectedRegion) : userProfile?.region,
           limit: 10,
           page: currentPage
@@ -112,7 +124,24 @@ function TransactionsContent() {
             </div>
           )}
 
-          
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Cari ID, pelat, driver..."
+              className="h-9 w-full sm:w-[220px] pl-9 pr-8 text-xs font-medium bg-white border border-border rounded-[4px] outline-none focus:border-pln-cyan/50 focus:ring-1 focus:ring-pln-cyan/20 placeholder:text-slate-400 transition-all"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
