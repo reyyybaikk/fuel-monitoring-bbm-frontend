@@ -52,7 +52,7 @@ function TransactionsContent() {
       const combinedSearch = debouncedSearch || searchQuery;
       const response = await api.get('/api/fuel-transactions/history', {
         params: {
-          q: combinedSearch || undefined,
+          search: combinedSearch || undefined,
           ul_nd: isPusat ? (selectedRegion === 'ALL' ? undefined : selectedRegion) : userProfile?.region,
           limit: 10,
           page: currentPage
