@@ -150,7 +150,7 @@ export default function ReportsPage() {
       <div className="bg-white p-4 rounded-[8px] border border-border shadow-sm flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-foreground flex items-center gap-1.5 uppercase tracking-tight">
-            <FileText className="h-4 w-4 text-pln-darkBlue" /> Pusat Laporan Resmi & Berita Acara
+            <FileText className="h-4 w-4 text-pln-darkBlue" /> Pusat Laporan
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5 font-medium italic">Data tersinkronisasi otomatis dengan Database Pusat.</p>
         </div>
@@ -278,7 +278,7 @@ export default function ReportsPage() {
 
             <Button onClick={handleExportPDF} disabled={isDownloading || isLoadingVehicles} className="w-full h-11 text-xs font-black bg-pln-darkBlue text-white hover:bg-pln-darkBlue/90 rounded-[6px] shadow-lg flex items-center justify-center gap-2 mt-4 tracking-widest border-b-4 border-black/20">
               {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              EKSPOR PDF RESMI
+              EKSPOR PDF
             </Button>
           </div>
         </Card>

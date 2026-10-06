@@ -89,7 +89,7 @@ function TransactionsContent() {
             </h1>
             <Badge className="bg-red-50 text-anomaly-red border border-red-100 text-[9px] font-bold uppercase rounded-[4px] px-1.5 pt-0.5 h-4">Audit Aktif</Badge>
           </div>
-          <p className="text-xs text-muted-foreground">Otorisasi klaim BBM dan verifikasi telemetri berbasis AI.</p>
+          <p className="text-xs text-muted-foreground">Otorisasi klaim BBM dan verifikasi.</p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -326,7 +326,7 @@ function TransactionsContent() {
               )}>
                 <h4 className="text-[11px] font-bold flex items-center gap-2 mb-1.5 text-foreground uppercase tracking-tight">
                   <AlertTriangle className={cn("h-4 w-4", activeTx.ml_is_anomaly ? "text-anomaly-red" : "text-emerald-600")} />
-                  Analisis Kecerdasan Buatan (AI)
+                  Analisis ML Engine
                 </h4>
                 <p className={cn(
                   "text-xs leading-relaxed font-medium",
