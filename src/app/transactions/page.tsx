@@ -145,19 +145,21 @@ function TransactionsContent() {
 
                   <div className="py-3 pr-3 pl-6 flex flex-col gap-1.5">
                     <div className="flex justify-between items-center gap-4">
-                      <span className="font-mono font-bold text-pln-darkBlue text-[10px] bg-pln-darkBlue/5 px-1.5 py-0.5 rounded">#{tx.id}</span>
-{tx.ml_is_anomaly ? (
-  <Badge className="bg-anomaly-red text-white text-[8px] font-bold rounded-[3px] px-1.5 h-4 border-none shadow-sm">RISIKO: {tx.ml_anomaly_score}</Badge>
-) : (
-  <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 text-[8px] font-bold rounded-[3px] px-1.5 h-4">AMAN</Badge>
-)}
-{tx.rule_labels && tx.rule_labels.length > 0 && (
-  <div className="flex flex-wrap gap-1 mt-1">
-    {tx.rule_labels.map(label => (
-      <Badge key={label} variant="secondary" className="text-[8px] font-medium">{label}</Badge>
-    ))}
-  </div>
-)}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono font-bold text-pln-darkBlue text-[10px] bg-pln-darkBlue/5 px-1.5 py-0.5 rounded">#{tx.id}</span>
+                        {tx.rule_labels && tx.rule_labels.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {tx.rule_labels.map(label => (
+                              <Badge key={label} variant="secondary" className="text-[8px] font-medium">{label}</Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {tx.ml_is_anomaly ? (
+                        <Badge className="bg-anomaly-red text-white text-[8px] font-bold rounded-[3px] px-1.5 h-4 border-none shadow-sm shrink-0">RISIKO: {tx.ml_anomaly_score}</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 text-[8px] font-bold rounded-[3px] px-1.5 h-4 shrink-0">AMAN</Badge>
+                      )}
                     </div>
 
                     <div className="flex justify-between items-end gap-2">
