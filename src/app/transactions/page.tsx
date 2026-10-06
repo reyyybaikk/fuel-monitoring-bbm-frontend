@@ -151,9 +151,9 @@ function TransactionsContent() {
 ) : (
   <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 text-[8px] font-bold rounded-[3px] px-1.5 h-4">AMAN</Badge>
 )}
-{tx.rule_labels?.length > 0 && (
+{tx.rule_labels && tx.rule_labels.length > 0 && (
   <div className="flex flex-wrap gap-1 mt-1">
-    {tx.rule_labels?.map(label => (
+    {tx.rule_labels.map(label => (
       <Badge key={label} variant="secondary" className="text-[8px] font-medium">{label}</Badge>
     ))}
   </div>
