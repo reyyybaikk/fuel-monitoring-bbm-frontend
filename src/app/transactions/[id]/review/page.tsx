@@ -218,11 +218,11 @@ export default function TransactionReviewPage() {
       </div>
 
         {/* Label Aturan */}
-        {transaction.rule_labels?.length && (
+        {(transaction.rule_labels?.length ?? 0) > 0 && (
           <section className="mt-4">
             <h3 className="text-sm font-medium mb-1">Label Aturan</h3>
             <div className="flex flex-wrap gap-2">
-              {transaction.rule_labels.map(label => (
+              {transaction.rule_labels?.map(label => (
                 <Badge key={label} variant="secondary" className="text-[8px] font-medium">{label}</Badge>
               ))}
             </div>
