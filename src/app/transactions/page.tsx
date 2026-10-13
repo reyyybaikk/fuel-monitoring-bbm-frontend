@@ -260,7 +260,7 @@ function TransactionsContent() {
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
                     <h3 className="text-base font-bold text-pln-darkBlue font-mono">ID: #{activeTx.id}</h3>
-                    <Badge className="bg-pln-darkBlue text-white text-[9px] font-bold rounded-[4px] pt-0.5">{activeTx.fuel_type || 'SOLAR HSD'}</Badge>
+                    <Badge className="bg-pln-darkBlue text-white text-[9px] font-bold rounded-[4px] pt-0.5">{activeTx.fuel_type || 'BBM'}</Badge>
                     <Link href={`/transactions/${activeTx.id}/review`}>
                       <Button variant="outline" size="sm" className="h-6 px-2 text-[9px] font-bold bg-white hover:bg-pln-iceBlue/40 border-pln-cyan/20 text-pln-darkBlue">
                         <ExternalLink className="h-3 w-3 mr-1" /> REVIEW & KOREKSI

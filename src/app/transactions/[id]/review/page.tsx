@@ -27,6 +27,27 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+// Opsi Bahan Bakar Standar (100% Selaras dengan Mobile App Driver & Backend)
+const STANDARD_FUEL_OPTIONS = [
+  {
+    category: 'Bensin (Gasoline)',
+    options: ['Pertalite', 'Pertamax', 'Pertamax Turbo']
+  },
+  {
+    category: 'Diesel (Solar)',
+    options: ['Biosolar', 'Dexlite', 'Pertamina Dex']
+  }
+];
+
+const ALL_STANDARD_FUELS = STANDARD_FUEL_OPTIONS.flatMap(g => g.options);
+
+function normalizeFuelType(input?: string): string {
+  if (!input) return '';
+  const trimmed = input.trim();
+  const matched = ALL_STANDARD_FUELS.find(f => f.toLowerCase() === trimmed.toLowerCase());
+  return matched || trimmed;
+}
+
 export default function TransactionReviewPage() {
   const params = useParams();
   const router = useRouter();
@@ -60,7 +81,7 @@ export default function TransactionReviewPage() {
         fuel_amount: transaction.fuel_amount,
         odometer: transaction.odometer,
         total_cost: transaction.total_cost,
-        fuel_type: transaction.fuel_type,
+        fuel_type: normalizeFuelType(transaction.fuel_type),
         notes: transaction.notes
       });
     }
@@ -117,11 +138,11 @@ export default function TransactionReviewPage() {
     }
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'notes' ? value : Number(value) || value
+      [name]: (name === 'notes' || name === 'fuel_type') ? value : (value === '' ? '' : Number(value) || value)
     }));
   };
 
@@ -434,18 +455,35 @@ export default function TransactionReviewPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase">Jenis Bahan Bakar</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Jenis Bahan Bakar</label>
+                    {transaction.fuel_type && (
+                      <span className="text-[9px] font-medium text-muted-foreground">
+                        Data Asli: <strong className="font-mono font-bold text-pln-darkBlue bg-slate-100 px-1.5 py-0.5 rounded border border-border/80">{transaction.fuel_type}</strong>
+                      </span>
+                    )}
+                  </div>
                   <select
                     name="fuel_type"
-                    value={formData.fuel_type}
-                    onChange={(e: any) => handleInputChange(e)}
+                    value={formData.fuel_type || ''}
+                    onChange={handleInputChange}
                     className="w-full h-9 border rounded-[4px] px-2 text-xs focus:outline-none focus:ring-1 focus:ring-pln-cyan bg-white font-medium"
                   >
-                    <option value="Solar HSD">Solar HSD</option>
-                    <option value="Biosolar">Biosolar</option>
-                    <option value="Dexlite">Dexlite</option>
-                    <option value="Pertamina Dex">Pertamina Dex</option>
-                    <option value="Pertamax">Pertamax</option>
+                    {/* Fallback jika data transaksi asli merupakan data khusus/lama di luar daftar standar */}
+                    {formData.fuel_type && !ALL_STANDARD_FUELS.includes(formData.fuel_type) && (
+                      <option value={formData.fuel_type}>
+                        {formData.fuel_type} (Data Asli)
+                      </option>
+                    )}
+                    {STANDARD_FUEL_OPTIONS.map((group) => (
+                      <optgroup key={group.category} label={group.category} className="font-bold text-slate-700">
+                        {group.options.map((opt) => (
+                          <option key={opt} value={opt} className="font-normal text-slate-800">
+                            {opt}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
                   </select>
                 </div>
 
