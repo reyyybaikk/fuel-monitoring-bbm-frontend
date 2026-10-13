@@ -101,40 +101,29 @@ export default function TransactionReviewPage() {
     }
   });
 
-  // 3. Mutasi Update Status
+  // 3. Mutasi Update Status & Otomatis Kirim Feedback ke ML-Engine
   const statusMutation = useMutation({
     mutationFn: (status: 'APPROVED' | 'REJECTED') => updateTransactionStatus(txId, status),
     onSuccess: async (_, status) => {
-      // Kirim feedback ke ML‑Engine sesuai keputusan admin
+      // Tombol TERIMA TRANSAKSI (APPROVED) = Normal (isAnomaly: false)
+      // Tombol TOLAK TRANSAKSI (REJECTED) = Anomali (isAnomaly: true)
       const isAnomaly = status === 'REJECTED';
       try {
         await submitTransactionFeedback(txId, isAnomaly, formData.notes || '');
-        toast.success('Feedback ke ML‑Engine berhasil dikirim.');
       } catch (err) {
-        console.error(err);
-        toast.error('Gagal mengirim feedback ke ML‑Engine.');
+        console.error('Gagal mengirim feedback ML otomatis:', err);
       }
-      toast.success(`Transaksi berhasil ${status === 'APPROVED' ? 'diterima' : 'ditolak'}.`);
+      toast.success(
+        status === 'APPROVED' 
+          ? 'Transaksi diterima (Tercatat sebagai data Normal untuk ML-Engine).' 
+          : 'Transaksi ditolak (Tercatat sebagai data Anomali untuk ML-Engine).'
+      );
       queryClient.invalidateQueries({ queryKey: ['transaction', txId] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       router.push('/transactions');
     },
     onError: () => {
       toast.error('Gagal memperbarui status transaksi.');
-    }
-  });
-
-  // 4. Mutasi Feedback ML
-  const feedbackMutation = useMutation({
-    mutationFn: (isAnomaly: boolean) => submitTransactionFeedback(txId, isAnomaly, formData.notes || ''),
-    onSuccess: (_, isAnomaly) => {
-      toast.success(`Feedback berhasil dikirim. ML-Engine akan belajar dari ini.`);
-      queryClient.invalidateQueries({ queryKey: ['transaction', txId] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      router.push('/transactions');
-    },
-    onError: () => {
-      toast.error('Gagal mengirim feedback ML.');
     }
   });
 
@@ -344,40 +333,6 @@ export default function TransactionReviewPage() {
             </CardContent>
           </Card>
 
-          {/* Section 1.5: ML Feedback Loop */}
-          {transaction.ml_is_anomaly && (
-            <Card className="border-border shadow-sm bg-white overflow-hidden rounded-[12px]">
-               <div className="bg-indigo-600 px-4 py-3 border-b flex items-center gap-2 text-white">
-                  <MessageCircle className="h-4 w-4" />
-                  <h2 className="text-xs font-bold uppercase tracking-widest">Feedback ML-Engine</h2>
-               </div>
-               <CardContent className="p-5 space-y-4">
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    Bantu AI kami belajar. Apakah deteksi anomali pada transaksi ini benar atau salah (False Positive)? Pastikan Anda memberi catatan di form bawah jika memilih salah.
-                  </p>
-                  <div className="flex gap-4">
-                    <Button
-                      onClick={() => feedbackMutation.mutate(true)}
-                      disabled={feedbackMutation.isPending}
-                      className="flex-1 bg-anomaly-red hover:bg-red-700 text-white font-bold text-xs h-10"
-                    >
-                      {feedbackMutation.isPending && feedbackMutation.variables === true ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                      👍 BENAR (ANOMALI)
-                    </Button>
-                    <Button
-                      onClick={() => feedbackMutation.mutate(false)}
-                      disabled={feedbackMutation.isPending}
-                      variant="outline"
-                      className="flex-1 font-bold text-xs h-10 text-emerald-600 border-emerald-600 hover:bg-emerald-50"
-                    >
-                      {feedbackMutation.isPending && feedbackMutation.variables === false ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                      👎 SALAH (NORMAL)
-                    </Button>
-                  </div>
-               </CardContent>
-            </Card>
-          )}
-
           {/* Section 2: WhatsApp Confirmation */}
           <Card className="border-border shadow-sm bg-white overflow-hidden rounded-[12px]">
              <div className="bg-emerald-600 px-4 py-3 border-b flex items-center gap-2 text-white">
@@ -517,30 +472,40 @@ export default function TransactionReviewPage() {
              </CardContent>
           </Card>
 
-          {/* Section 4: Keputusan Final */}
+          {/* Section 4: Keputusan Final (Otomatis Sync Feedback ML-Engine) */}
           <Card className="border-border shadow-sm bg-white overflow-hidden rounded-[12px]">
-             <div className="bg-slate-100 px-4 py-3 border-b flex items-center gap-2 text-slate-800">
-                <CheckCircle2 className="h-4 w-4" />
-                <h2 className="text-xs font-bold uppercase tracking-widest">Keputusan Final</h2>
+             <div className="bg-slate-100 px-4 py-3 border-b flex items-center justify-between text-slate-800">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-pln-cyan" />
+                  <h2 className="text-xs font-bold uppercase tracking-widest">Keputusan Final</h2>
+                </div>
+                <Badge variant="outline" className="text-[9px] font-mono text-muted-foreground border-slate-300">
+                  AUTO AI FEEDBACK
+                </Badge>
              </div>
-             <CardContent className="p-5 flex gap-4">
-                <Button
-                  onClick={() => statusMutation.mutate('APPROVED')}
-                  disabled={statusMutation.isPending || mutation.isPending}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10"
-                >
-                  {statusMutation.isPending && statusMutation.variables === 'APPROVED' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  TERIMA TRANSAKSI
-                </Button>
-                <Button
-                  onClick={() => statusMutation.mutate('REJECTED')}
-                  disabled={statusMutation.isPending || mutation.isPending}
-                  variant="destructive"
-                  className="flex-1 font-bold text-xs h-10"
-                >
-                  {statusMutation.isPending && statusMutation.variables === 'REJECTED' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  TOLAK TRANSAKSI
-                </Button>
+             <CardContent className="p-5 space-y-3">
+                <div className="flex gap-4">
+                  <Button
+                    onClick={() => statusMutation.mutate('APPROVED')}
+                    disabled={statusMutation.isPending || mutation.isPending}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10 shadow-sm"
+                  >
+                    {statusMutation.isPending && statusMutation.variables === 'APPROVED' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    TERIMA TRANSAKSI
+                  </Button>
+                  <Button
+                    onClick={() => statusMutation.mutate('REJECTED')}
+                    disabled={statusMutation.isPending || mutation.isPending}
+                    variant="destructive"
+                    className="flex-1 font-bold text-xs h-10 shadow-sm"
+                  >
+                    {statusMutation.isPending && statusMutation.variables === 'REJECTED' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    TOLAK TRANSAKSI
+                  </Button>
+                </div>
+                <p className="text-[9px] text-muted-foreground text-center leading-relaxed">
+                  * Tombol <strong>Terima</strong> otomatis mencatat data sebagai transaksi <strong>Normal</strong>, dan tombol <strong>Tolak</strong> mencatat data sebagai <strong>Anomali</strong> untuk model AI / ML-Engine.
+                </p>
              </CardContent>
           </Card>
 
